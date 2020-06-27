@@ -41,6 +41,6 @@ for url in tqdm(url_list[:10]):
     sleep(5)
 #print(movie_info)
 name=['电影名称','类型','上映时间']
-movie_csv=pd.DataFrame(columns=name,data=movie_info)#数据有三列，列名分别为one,two,three
+movie_csv=pd.DataFrame(columns=name,data=movie_info)
 movie_csv.to_csv('./week01/task1/movie.csv',encoding='utf8')
 

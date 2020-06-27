@@ -1,6 +1,5 @@
 import scrapy
 from maoyan.items import MaoyanItem
-# from bs4 import BeautifulSoup
 from scrapy.selector import Selector
 
 
@@ -18,10 +17,7 @@ class MoviesSpider(scrapy.Spider):
         # 解析函数
     def parse(self, response):
         movies = Selector(response=response).xpath('//div[@class="movie-item film-channel"]')
-        #for i in range(len(title_list)):
-        # 在Python中应该这样写
         for movie in movies[:10]:
-            # 在items.py定义
             url = 'https://maoyan.com' + movie.xpath('./a/@href').extract_first().strip()
             print(url)
             yield scrapy.Request(url=url, callback=self.parse2, dont_filter=False)
