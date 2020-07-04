@@ -15,10 +15,6 @@ try:
     browser.find_element_by_xpath('//*[@name="password"]').send_keys('*******')
     time.sleep(1)
     browser.find_element_by_xpath('//button[contains(@class,"submit")]').click()
-
-    cookies = browser.get_cookies() # 获取cookies
-    print(cookies)
-    print('登录成功')
     time.sleep(3)
 
 except Exception as e:
