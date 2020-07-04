@@ -14,19 +14,26 @@ class MoviesSpider(scrapy.Spider):
         yield scrapy.Request(url=url, callback=self.parse)
 
 
-        # 解析函数
+    # 解析链接
     def parse(self, response):
-        movies = Selector(response=response).xpath('//div[@class="movie-item film-channel"]')
-        for movie in movies[:10]:
-            url = 'https://maoyan.com' + movie.xpath('./a/@href').extract_first().strip()
-            print(url)
-            yield scrapy.Request(url=url, callback=self.parse2, dont_filter=False)
-
+        try:
+            movies = Selector(response=response).xpath('//div[@class="movie-item film-channel"]')
+            for movie in movies[:10]:
+                url = 'https://maoyan.com' + movie.xpath('./a/@href').extract_first().strip()
+                print(url)
+                yield scrapy.Request(url=url, callback=self.parse2, dont_filter=False)
+        except:
+            item = MaoyanItem()
+            item['title']=item['mtype']=item['mtime']='未抓取成功'
+            yield item
     # 解析具体页面
     def parse2(self, response):
         item = MaoyanItem()
-        item['title'] = Selector(response=response).xpath('//h1[@class="name"]/text()').extract_first().strip()
-        tages = Selector(response=response).xpath('//li[@class="ellipsis"]')
-        item['mtype'] = ','.join(tages[0].xpath('./a/text()').extract())
-        item['mtime'] = tages[2].xpath('./text()').extract_first().strip()
+        try:
+            item['title'] = Selector(response=response).xpath('//h1[@class="name"]/text()').extract_first().strip()
+            tages = Selector(response=response).xpath('//li[@class="ellipsis"]')
+            item['mtype'] = ','.join(tages[0].xpath('./a/text()').extract())
+            item['mtime'] = tages[2].xpath('./text()').extract_first().strip()
+        except:
+            item['title']=item['mtype']=item['mtime']='未抓取成功'
         yield item
