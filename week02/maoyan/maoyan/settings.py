@@ -81,7 +81,7 @@ HTTP_PROXY_LIST = [
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'maoyan.pipelines.MaoyanPipeline': 200,
+    'maoyan.pipelines.MaoyanPipeline': None,
     'maoyan.mysqlpipeline.MysqlPipeline': 300,
 }
 

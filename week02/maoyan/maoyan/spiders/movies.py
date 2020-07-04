@@ -18,14 +18,16 @@ class MoviesSpider(scrapy.Spider):
     def parse(self, response):
         try:
             movies = Selector(response=response).xpath('//div[@class="movie-item film-channel"]')
+            if len(movies)==0:
+                raise Exception('未找到链接！')
             for movie in movies[:10]:
                 url = 'https://maoyan.com' + movie.xpath('./a/@href').extract_first().strip()
                 print(url)
+                print('成功找到电影详情链接')
                 yield scrapy.Request(url=url, callback=self.parse2, dont_filter=False)
-        except:
-            item = MaoyanItem()
-            item['title']=item['mtype']=item['mtime']='未抓取成功'
-            yield item
+        except Exception as e:
+            print(e)
+            print('电影详情页链接未抓取成功')
     # 解析具体页面
     def parse2(self, response):
         item = MaoyanItem()
@@ -34,6 +36,8 @@ class MoviesSpider(scrapy.Spider):
             tages = Selector(response=response).xpath('//li[@class="ellipsis"]')
             item['mtype'] = ','.join(tages[0].xpath('./a/text()').extract())
             item['mtime'] = tages[2].xpath('./text()').extract_first().strip()
-        except:
-            item['title']=item['mtype']=item['mtime']='未抓取成功'
-        yield item
+            print('成功找到电影信息')
+            yield item
+        except Exception as e:
+            print(e)
+            print('电影信息未抓取成功')
