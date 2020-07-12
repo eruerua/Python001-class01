@@ -1,57 +1,54 @@
 import nmap
 import argparse
 import json
-#扫描tcp端口
-# nm = nmap.PortScanner()#端口扫描
-# print(nm.scan('180.101.49.12','1-1024','-sV'))
-# print(nm['180.101.49.12']['tcp'])
-# 扫描主机是否存活
-# scan = nm.scan(hosts='192.168.0.1',arguments='-sn')
-# print(scan['nmap']['scanstats']['uphosts'])
+from concurrent.futures import ThreadPoolExecutor
+from functools import partial
+result=[]
+
+#拆分IP字段为列表
 def deteIp(ip):
     ipList=ip.split('-')
-    if len(ipList)==2:
+    if len(ipList)!=1:
         ipCom= '.'.join(ipList[0].split('.')[:-1])
         n1=int(ipList[0].split('.')[-1])
         n2=int(ipList[1].split('.')[-1])
-        return ipCom,range(n1,n2+1)
+        return [ipCom + '.' + str(i) for i in range(n1,n2+1)]
     else:
-        ipCom= '.'.join(ipList[0].split('.')[:-1])
-        n1=int(ipList[0].split('.')[-1])
-        return ipCom+'.',[n1]
-    
+        return ipList
 
-
-def portTest(number, func, ip, write):
+#端口扫描函数   
+def portTest(func, ip):
+    print(ip+ ' is start')
     l={}
-    result=[]
-    ipCom,ipList = deteIp(ip)
+    global result
     nm = nmap.PortScanner()
+    #选择扫描方式
     if func == 'ping':
-        for i in ipList:
-            ip=ipCom+str(i)
+        try:
             sta=nm.scan(hosts=ip,arguments='-sn')['nmap']['scanstats']['uphosts']
-            if sta == 0:
+        except Exception as e:
+            print(e)
+            print(ip+'ping扫描失败')
+            pass
+        if sta == 0:
                 pass
-            else:
-                print(ip+' this ip is ok')
-                l[ip]=' this ip is ok'
+        print(ip+' this ip is ok')
+        l[ip]=' this ip is ok'
     elif func == 'tcp':
-        for i in ipList:
-            ip=ipCom+str(i)
-            print(ip)
+        try:
             nm.scan(ip,'1-1024','-sV')
-            print(nm[ip]['tcp'])
-            l[ip] = nm[ip].all_tcp()
+            tcps=nm[ip].all_tcp()
+        except Exception as e:
+            print(e)
+            print(ip+'tcp扫描失败')
+            pass
+        for i in tcps:
+            print('{} tcp端口 {} '.format(ip,i))
+        l[ip] = tcps
     result.append(l)
-    print(result)
-    with open(write, 'w') as f:
-        json.dump(result, f)
+    print(ip +' is finished')
 
-            
-
-
-
+#获取终端参数
 parser = argparse.ArgumentParser(description='pmap')
 parser.add_argument('--number', '-n', help='并发数量',default=4)
 parser.add_argument('--func', '-f', help='选择进行ping测试或者tcp端口测试')
@@ -60,5 +57,10 @@ parser.add_argument('--write', '-w', help='保存')
 args = parser.parse_args()
 
 if __name__ == '__main__':
-
-    portTest(args.number, args.func, args.ip,args.write)
+    #将多个函数参数传递给map函数
+    s = ((args.func, b) for b in deteIp(args.ip))
+    with ThreadPoolExecutor(int(args.number)) as executor:
+        r=executor.map(lambda p: portTest(*p), s)   
+    if args.write:
+        with open(args.write, 'w') as f:
+            json.dump(result, f)
