@@ -8,7 +8,6 @@ def getComment(url):
     req =requests.get(url,headers=headers)
     content = req.content
     bs = BeautifulSoup(content, 'html.parser')
-
     star_tags = bs.findAll('span',attrs={"class":re.compile(r'^allstar\d{2} rating$')})
     star=[int(re.findall(r'\d', i['class'][0])[0]) for i in star_tags]
     comment_tags = bs.findAll('span', 'short')
