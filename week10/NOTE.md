@@ -13,9 +13,13 @@
 
 可以在chrome console 中使用$x(“your_xpath_selector”)来测试xpath，提高提取评论的准确率。
 
-每个手机种类爬取手机名称和评论，数据库有三栏author，comment，sentiment，author为手机名称，comment为对应手机的评论，sentiment等于1为积极评论，0 为消极评论，先设置为0为情感分析作准备。
+每个手机种类爬取手机名称和评论，评论进行简单的去除符号处理，数据库有三栏author，comment，sentiment，author为手机名称，comment为对应手机的评论，sentiment等于1为积极评论，0 为消极评论，先设置为0为情感分析作准备。
 
-### 2.使用百度情感分析
+### 2.使用百度情感分析评论并保存到数据库
+
+使用[百度情感倾向分析](https://ai.baidu.com/tech/nlp_apply/sentiment_classify)对手机评论进行分析，在百度AI平台注册后，可参考https://ai.baidu.com/ai-doc/NLP/zk6z52hds进行配置，注意请求频率。
+
+使用sqlalchemy包进行数据库数据的读取和保存。
 
 
 
