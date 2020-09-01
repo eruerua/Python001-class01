@@ -43,5 +43,6 @@ tqdm.pandas()
 df_new_senti = df_new.copy()
 df_new_senti['sentiment'] = df_new['comment'].progress_apply(sentiment)#使用tqdm进度条
 df_new_senti.sort_values(by='author',inplace=True)
+df_new_senti['id']=df_new_senti.index
 #保存到数据库
-df_new_senti.to_sql(name = 'smzdm_senti',con = engine,if_exists = 'replace',index = False,dtype = {'author': VARCHAR(length=255),'comment':VARCHAR(length=255),'sentiment':FLOAT(12,10)})
+df_new_senti.to_sql(name = 'smzdm_senti',con = engine,if_exists = 'replace',index = False,dtype = {'id':BIGINT,'author': VARCHAR(length=255),'comment':VARCHAR(length=255),'sentiment':FLOAT(12,10)})
